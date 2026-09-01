@@ -1,0 +1,28 @@
+# ========================================================
+# AGENTE TELEFÓNICO DE VOZ CON IA - DEPENDENCIAS
+# ========================================================
+
+# 1. Orquestación y LLM
+langgraph>=1.2.0
+langchain-core>=1.6.0
+langchain-ollama>=1.1.0
+pydantic>=2.10.0
+
+# 2. Reconocimiento de Voz (STT)
+faster-whisper>=1.2.0
+ctranslate2>=4.8.0
+
+# 3. Síntesis de Voz (TTS)
+elevenlabs>=2.65.0
+edge-tts>=7.2.0
+
+# 4. Aceleración CUDA para Whisper en GPU (Linux)
+nvidia-cublas-cu12>=12.8.0
+nvidia-cudnn-cu12>=9.20.0
+nvidia-cuda-nvrtc-cu12>=12.8.0
+
+# 5. Audio, Networking y Utilidades
+numpy>=2.0.0
+requests>=2.32.0
+python-dotenv>=1.2.0
+websockets>=16.0.0
