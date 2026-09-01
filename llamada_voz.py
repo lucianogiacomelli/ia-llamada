@@ -3,21 +3,22 @@
 ============================================================
 SIMULADOR DE LLAMADA DE VENTAS MOVISTAR (ARGENTINA / VOZ REAL)
 ============================================================
-- Pipeline Concurrente: Streaming Oración a Oración (LLM -> TTS).
-- El primer audio comienza a sonar en los altavoces en ~450ms.
+- FULL DUPLEX CON INTERRUPCIONES (Barge-in):
+  Si el cliente habla mientras Sofía está hablando, la voz de Sofía se
+  corta inmediatamente (<50ms) y el sistema procesa lo que dijo el cliente.
+- Streaming concurrente oración por oración.
 - GPU Warm Keeper activo (P2 permanente a 7300MHz).
-- Silencio de corte VAD en 350ms para respuesta inmediata.
 """
 
 import time
 from core import CallSession, gpu_keeper
-from audio import stt_service, tts_service, capturar_audio_microfono_vad
+from audio import stt_service, tts_service, capturar_audio_con_barge_in
 
 def main():
     print("\n" + "="*65)
-    print("📞 LLAMADA DE MOVISTAR ARGENTINA - SOFÍA IA (PIPELINE CONCURRENTE)")
+    print("📞 LLAMADA DE MOVISTAR ARGENTINA - SOFÍA IA (FULL DUPLEX / BARGE-IN)")
     print("="*65)
-    print("💡 Habla naturalmente; el sistema detectará tu voz y silencio.")
+    print("💡 Habla naturalmente. Podés interrumpir a Sofía en cualquier momento.")
     print("="*65)
     
     # 1. Iniciar GPU Keepalive para sostener relojes máximos (P2 / 7300MHz)
@@ -27,39 +28,60 @@ def main():
     sesion = CallSession(client_name="Juan Pérez")
     
     try:
-        # 3. Sofía saluda
+        # 3. Turno 0: Saludo inicial con escucha activa simultánea
         saludo_inicial = sesion.iniciar_llamada()
-        tts_service.reproducir(saludo_inicial)
+        
+        def hablar_saludo():
+            tts_service.reproducir(saludo_inicial)
+            
+        interrumpido, audio_np = capturar_audio_con_barge_in(
+            reproducir_fn=hablar_saludo,
+            silencio_corte=0.35,
+            umbral_energia=250
+        )
         
         # 4. Bucle continuo de la llamada
         while True:
-            # Captura audio con corte de silencio en 350ms
-            audio_np = capturar_audio_microfono_vad(silencio_corte=0.35, umbral_energia=250)
-            
+            # Si no capturó audio (silencio prolongado), escuchamos de nuevo
             if audio_np is None:
-                print("⚠️ (Silencio prolongado, escuchando nuevamente...)")
+                interrumpido, audio_np = capturar_audio_con_barge_in(
+                    reproducir_fn=None,
+                    silencio_corte=0.35,
+                    umbral_energia=250
+                )
                 continue
                 
             # Transcripción directa en GPU con Whisper (~25ms)
             texto_cliente = stt_service.transcribir_audio(audio_np)
             
             if not texto_cliente:
+                interrumpido, audio_np = capturar_audio_con_barge_in(
+                    reproducir_fn=None,
+                    silencio_corte=0.35,
+                    umbral_energia=250
+                )
                 continue
                 
             print(f"👤 Tú: \"{texto_cliente}\"")
             print("\n🤖 Sofía: ", end="", flush=True)
             
-            # Generador de oraciones en streaming directo desde Ollama
-            def generador_oraciones_con_log():
-                for oracion in sesion.procesar_respuesta_stream(texto_cliente):
-                    print(f"{oracion} ", end="", flush=True)
-                    yield oracion
-                print() # Salto de línea al terminar
+            # Preparar generador de respuesta de Sofía
+            def responder_sofia_stream():
+                def gen():
+                    for oracion in sesion.procesar_respuesta_stream(texto_cliente):
+                        print(f"{oracion} ", end="", flush=True)
+                        yield oracion
+                    print()
+                tts_service.reproducir_stream_oraciones(gen())
                 
-            # Reproducción concurrente oración por oración en pipe hacia pw-play
-            tts_service.reproducir_stream_oraciones(generador_oraciones_con_log())
+            # Escucha full-duplex: reproduce a Sofía pero corta al instante si el cliente habla
+            interrumpido, audio_np = capturar_audio_con_barge_in(
+                reproducir_fn=responder_sofia_stream,
+                silencio_corte=0.35,
+                umbral_energia=250
+            )
             
-            # Verificar si la llamada concluyó legítimamente
+            # Verificar si la llamada concluyó legítimamente (cierre de venta o despedida)
             if sesion.esta_finalizada:
                 resumen = sesion.obtener_resumen()
                 print("\n" + "="*65)
