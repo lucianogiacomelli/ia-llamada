@@ -65,11 +65,11 @@ WHISPER_MODEL_SIZE = "small"
 WHISPER_DEVICE = "cuda"
 WHISPER_COMPUTE_TYPE = "float16"
 
-# Detección de Silencio (VAD) - Optimizado a 550ms para respuesta inmediata
+# Detección de Silencio (VAD) - Optimizado a 420ms para respuesta inmediata
 VAD_SAMPLE_RATE = 16000
 VAD_CHUNK_SAMPLES = 512
 VAD_UMBRAL_ENERGIA = 250
-VAD_SILENCIO_CORTE = 0.55
+VAD_SILENCIO_CORTE = 0.42
 VAD_PRE_BUFFER_SEC = 0.35
 VAD_MAX_ESPERA_INICIO = 15.0
 
