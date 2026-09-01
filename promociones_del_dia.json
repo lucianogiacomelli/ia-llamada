@@ -1,0 +1,52 @@
+{
+    "fecha_vigencia": "2026-08-31",
+    "descuento_general_portabilidad": "50% por 12 meses",
+    "planes": [
+        {
+            "id": "plan_5gb",
+            "nombre": "Plan 5 Gigas",
+            "gigas": 5,
+            "precio_regular": 12000,
+            "precio_promo": 6000,
+            "beneficios": [
+                "WhatsApp gratis",
+                "Llamadas ilimitadas",
+                "Roaming América"
+            ],
+            "recomendado_para": "Usuarios de bajo consumo o personas mayores"
+        },
+        {
+            "id": "plan_15gb",
+            "nombre": "Plan 15 Gigas",
+            "gigas": 15,
+            "precio_regular": 20000,
+            "precio_promo": 10000,
+            "beneficios": [
+                "WhatsApp gratis",
+                "Llamadas ilimitadas",
+                "3GB extra para redes",
+                "Roaming América"
+            ],
+            "recomendado_para": "Uso diario, redes sociales, streaming"
+        },
+        {
+            "id": "plan_30gb",
+            "nombre": "Plan 30 Gigas Control",
+            "gigas": 30,
+            "precio_regular": 32000,
+            "precio_promo": 16000,
+            "beneficios": [
+                "WhatsApp gratis",
+                "Llamadas ilimitadas",
+                "Pasa gigas a otros Movistar",
+                "Test pass"
+            ],
+            "recomendado_para": "Gente que trabaja con el teléfono o clientes de Claro/Personal con planes caros"
+        }
+    ],
+    "reglas_legales": [
+        "Envío de chip a domicilio 100% bonificado.",
+        "Sin contrato de permanencia.",
+        "El trámite de portabilidad demora entre 3 y 5 días hábiles."
+    ]
+}

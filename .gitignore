@@ -1,0 +1,31 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Variables de entorno y credenciales (NUNCA SUBIR)
+.env.local
+.env
+*.env
+
+# Archivos de audio generados y temporales
+*.mp3
+*.wav
+*.bin
+*.ogg
+output.bin
+respuesta_ia.mp3
+entrada_usuario.wav
+test_*.mp3
+
+# Python bytecode y caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*~
